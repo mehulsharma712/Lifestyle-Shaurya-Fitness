@@ -605,7 +605,7 @@ def process_message(user_phone, user_message, button_id=None):
     # ===================== TRIAL FLOW =========================
     # ==========================================================
 
-    if msg in ["trial", "free trial", "book trial"] and state not in ["ASK_NAME", "ASK_VISIT_TIME"]:
+    if msg in ["trial", "free trial", "book trial"]:
         session["state"] = "ASK_NAME"
         lead["interest"] = "Free Trial"
         return {"type": "text", "text": "Great! 💪 Aapka naam kya hai?"}
