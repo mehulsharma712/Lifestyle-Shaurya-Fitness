@@ -554,6 +554,7 @@ scheduler.add_job(reminder_checker, "interval", minutes=5)
 # ============================================================
 
 def process_message(user_phone, user_message, button_id=None):
+
     user_phone = clean_number(user_phone)
     session = get_session(user_phone)
     state = session["state"]
@@ -566,18 +567,18 @@ def process_message(user_phone, user_message, button_id=None):
 
     lead_type = lead_scoring(msg)
 
-    # If user is inside free trial flow, they are definitely a HOT lead
+    # If inside trial flow → HOT
     if state in ["ASK_NAME", "ASK_VISIT_TIME"]:
         lead_type = "HOT"
 
-    # If user asked important business info, minimum WARM
-    if msg in ["fees", "timings", "location", "review", "transform"]:
+    # If user asked important business info → minimum WARM
+    if any(word in msg for word in ["fees", "timings", "location", "review", "transform"]):
         if lead_type == "COLD":
             lead_type = "WARM"
 
     lead["lead_type"] = lead_type
 
-        # ================= OWNER INSTANT NOTIFICATION =================
+    # ================= OWNER NOTIFICATION =================
     try:
         owner_msg = f"""🔔 New Lead Activity
 
@@ -589,10 +590,8 @@ def process_message(user_phone, user_message, button_id=None):
         notify_owner(owner_msg)
     except Exception as e:
         print("Owner notification error:", e)
-    # ==============================================================
-    
 
-
+    # Save/update lead
     save_or_update_lead(
         phone=user_phone,
         name=lead.get("name", ""),
@@ -602,52 +601,10 @@ def process_message(user_phone, user_message, button_id=None):
         last_message=user_message
     )
 
-    # MENU
-    # MENU
-    if msg in ["hi", "hello", "hey", "menu", "start","or bhai"]:
-        session["state"] = "MENU"
+    # ==========================================================
+    # ===================== TRIAL FLOW =========================
+    # ==========================================================
 
-    # If first time, send full welcome
-        if not session.get("welcome_sent"):
-            session["welcome_sent"] = True
-            return {"type": "menu"}
-
-    # If already welcomed before, send only more options
-        return {"type": "menu_repeat"}
-
-    # FEES
-    if any(word in msg for word in ["fees", "fee", "price", "membership", "plans"]):
-        lead["interest"] = "Fees"
-        return {"type": "text", "text": FEES_TEXT}
-
-    # TIMINGS
-    if any(word in msg for word in ["timings", "timing", "time", "open"]):
-        lead["interest"] = "Timings"
-        return {"type": "text", "text": TIMINGS_TEXT}
-
-    # LOCATION
-    if any(word in msg for word in ["location", "address", "where","jagah"]):
-        lead["interest"] = "Location"
-        return {"type": "text", "text": LOCATION_TEXT}
-
-    # REVIEW
-    if any(word in msg for word in ["review", "google"]):
-        lead["interest"] = "Review"
-        return {"type": "text", "text": REVIEW_TEXT}
-    
-    if any(word in msg for word in ["photo", "image", "gym"]):
-        lead["interest"] = "Gym Photos"
-        return {"type": "gym_images"}
-
-
-    # TRANSFORMATIONS
-    # Transformations
-    if any(word in msg for word in ["transform", "result"]):
-        lead["interest"] = "Transformations"
-        return {"type": "transformations"}
-
-
-    # TRIAL FLOW
     if msg in ["trial", "free trial", "book trial"] and state not in ["ASK_NAME", "ASK_VISIT_TIME"]:
         session["state"] = "ASK_NAME"
         lead["interest"] = "Free Trial"
@@ -656,51 +613,35 @@ def process_message(user_phone, user_message, button_id=None):
     if state == "ASK_NAME":
         lead["name"] = extract_name(user_message)
         session["state"] = "ASK_VISIT_TIME"
-
         return {
-        "type": "trial_buttons",
-        "name": lead["name"]
-    }
-
+            "type": "trial_buttons",
+            "name": lead["name"]
+        }
 
     if state == "ASK_VISIT_TIME":
-    
+
         if msg in ["visit_today", "today", "1"]:
             lead["visit_time"] = "Today"
         elif msg in ["visit_tomorrow", "tomorrow", "2"]:
             lead["visit_time"] = "Tomorrow"
         elif msg in ["visit_other", "other", "some other day"]:
             lead["visit_time"] = "Some Other Day"
-
         else:
-            return {"type": "text", "text": "⚠️ Please select Today or Tomorrow button."}
-
+            return {"type": "text", "text": "⚠️ Please select from given buttons."}
 
         lead["trial_status"] = f"Trial booked - {lead['visit_time']}"
 
-        save_or_update_lead(
-            phone=user_phone,
-            name=lead.get("name", ""),
-            interest="Free Trial Booking",
-            lead_type=lead.get("lead_type", "WARM"),
-            trial_status=lead["trial_status"],
-            last_message="Trial booked"
-        )
-        # Set dynamic delays based on visit selection
+        # Set reminder delays
         if lead["visit_time"] == "Today":
             reminder_delay = 1
             review_delay = 48
-
         elif lead["visit_time"] == "Tomorrow":
             reminder_delay = 16
             review_delay = 72
-
-        else:  # Some Other Day
+        else:
             reminder_delay = 48
-            review_delay = 168   # 7 days
-            
+            review_delay = 168
 
-        # Set reminder time
         reminder_time = (datetime.now() + timedelta(hours=reminder_delay)).strftime("%Y-%m-%d %H:%M")
         review_time = (datetime.now() + timedelta(hours=review_delay)).strftime("%Y-%m-%d %H:%M")
 
@@ -708,37 +649,33 @@ def process_message(user_phone, user_message, button_id=None):
             phone=user_phone,
             name=lead.get("name", ""),
             interest="Free Trial Booking",
-            lead_type=lead.get("lead_type", "WARM"),
+            lead_type="HOT",
             trial_status=lead["trial_status"],
             last_message="Trial booked"
         )
 
-# Update reminder columns manually
+        # Update sheet reminder columns
         row = find_row_by_phone(user_phone)
         if row:
-            sheet.update_cell(row, 8, reminder_time)     # ReminderTime
-            sheet.update_cell(row, 9, "NO")              # ReminderSent
-            sheet.update_cell(row, 10, review_time)      # ReviewTime
-            sheet.update_cell(row, 11, "NO")             # ReviewSent
+            sheet.update_cell(row, 8, reminder_time)
+            sheet.update_cell(row, 9, "NO")
+            sheet.update_cell(row, 10, review_time)
+            sheet.update_cell(row, 11, "NO")
 
-        
-                # ================= OWNER TRIAL BOOKED =================
+        # Owner trial notification
         try:
             owner_trial_msg = f"""🔥 TRIAL BOOKED!
 
-        👤 Name: {lead.get("name","")}
-        📱 Phone: {user_phone}
-        📅 Visit: {lead.get("visit_time")}
-        ⏰ Time: {now_str()}
-        """
+👤 Name: {lead.get("name","")}
+📱 Phone: {user_phone}
+📅 Visit: {lead.get("visit_time")}
+⏰ Time: {now_str()}
+"""
             notify_owner(owner_trial_msg)
         except Exception as e:
             print("Owner trial notify error:", e)
-        # ======================================================
-        
 
         session["state"] = "MENU"
-        
 
         return {
             "type": "text",
@@ -751,24 +688,56 @@ Our team from *{GYM_NAME}* will contact you soon.
 
 Reply *MENU* anytime for options."""
         }
-        
 
-    # if msg == "confirm":
-    #     return {"type": "text", "text": "✅ Great! Your free trial visit is confirmed. See you soon 💪🔥"}
-    
+    # ==========================================================
+    # ======================== MENU =============================
+    # ==========================================================
 
+    if msg in ["hi", "hello", "hey", "menu", "start", "or bhai"]:
+        session["state"] = "MENU"
 
-# YES confirmation
-# YES confirmation
-    # ================= YES CONFIRMATION =================
-    # YES confirmation (Simple Original Logic)
+        if not session.get("welcome_sent"):
+            session["welcome_sent"] = True
+            return {"type": "menu"}
+
+        return {"type": "menu_repeat"}
+
+    # ==========================================================
+    # ==================== INFORMATION =========================
+    # ==========================================================
+
+    if any(word in msg for word in ["fees", "fee", "price", "membership", "plans"]):
+        lead["interest"] = "Fees"
+        return {"type": "text", "text": FEES_TEXT}
+
+    if any(word in msg for word in ["timings", "timing", "time", "open"]):
+        lead["interest"] = "Timings"
+        return {"type": "text", "text": TIMINGS_TEXT}
+
+    if any(word in msg for word in ["location", "address", "where", "jagah"]):
+        lead["interest"] = "Location"
+        return {"type": "text", "text": LOCATION_TEXT}
+
+    if "review" in msg:
+        lead["interest"] = "Review"
+        return {"type": "text", "text": REVIEW_TEXT}
+
+    if any(word in msg for word in ["photo", "image", "photos", "images"]):
+        lead["interest"] = "Gym Photos"
+        return {"type": "gym_images"}
+
+    if any(word in msg for word in ["transform", "result"]):
+        lead["interest"] = "Transformations"
+        return {"type": "transformations"}
+
+    # ==========================================================
+    # ==================== YES CONFIRMATION ====================
+    # ==========================================================
+
     if msg in ["yes", "confirm_visit", "confirm"]:
 
         if not lead.get("trial_status", "").startswith("Trial booked"):
-            return {
-            "type": "text",
-            "text": "🙂 Please type MENU to see options."
-        }
+            return {"type": "text", "text": "🙂 Please type MENU to see options."}
 
         lead["trial_status"] = "Trial Confirmed"
 
@@ -784,31 +753,33 @@ Reply *MENU* anytime for options."""
         try:
             owner_confirm_msg = f"""✅ TRIAL CONFIRMED!
 
-    👤 Name: {lead.get("name","")}
-    📱 Phone: {user_phone}
-    ⏰ Time: {now_str()}
+👤 Name: {lead.get("name","")}
+📱 Phone: {user_phone}
+⏰ Time: {now_str()}
 """
             notify_owner(owner_confirm_msg)
-
         except Exception as e:
             print("Owner confirm notify error:", e)
 
         return {
-        "type": "text",
-        "text": f"""✅ Great {lead.get("name","")}!
+            "type": "text",
+            "text": f"""✅ Great {lead.get("name","")}!
 
 Your visit has been successfully confirmed 💪🔥
 
 We look forward to seeing you at *{GYM_NAME}*.
 
 If you need any help, just type MENU 😊"""
-    }
+        }
 
-# RANDOM / UNKNOWN MESSAGE HANDLER
+    # ==========================================================
+    # ======================== FALLBACK ========================
+    # ==========================================================
+
     return {
-    "type": "text",
-    "text": "⚠️ Please select a valid option.\n\nType MENU to see options."
-}
+        "type": "text",
+        "text": "⚠️ Please select a valid option.\n\nType MENU to see options."
+    }
 
 # Default fallback
     # else:
