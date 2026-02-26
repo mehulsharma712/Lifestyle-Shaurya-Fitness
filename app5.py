@@ -23,7 +23,7 @@ GUPSHUP_APP_NAME = "LifestyleShauryaFitnessBot"
 GUPSHUP_SOURCE_NUMBER = "919911426467"
 GUPSHUP_SEND_URL = "https://api.gupshup.io/wa/api/v1/msg"
 GUPSHUP_API_KEY = os.environ.get("GUPSHUP_API_KEY")
-# OWNER_NUMBER = os.environ.get("OWNER_NUMBER")
+OWNER_NUMBER = os.environ.get("OWNER_NUMBER")
 
 
 # ============================================================
@@ -559,6 +559,7 @@ def process_message(user_phone, user_message, button_id=None):
     session = get_session(user_phone)
     state = session["state"]
     lead = session["lead"]
+    print("CURRENT STATE:", state)
 
     msg = user_message.lower().strip() if user_message else ""
 
