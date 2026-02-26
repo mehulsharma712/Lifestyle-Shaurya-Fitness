@@ -1,0 +1,7 @@
+gunicorn
+Flask
+flask-cors
+gspread
+oauth2client
+requests
+apscheduler
