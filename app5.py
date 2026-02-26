@@ -715,7 +715,20 @@ Reply *MENU* anytime for options."""
     # ======================== MENU ========================
     # =====================================================
 
-    if msg in ["hi", "hello", "hey", "menu", "start", "or bhai"]:
+    # =====================================================
+# ======================== MENU ========================
+# =====================================================
+
+# Only greeting → send welcome text only
+    if msg in ["hi", "hello", "hey"]:
+        set_user_state(user_phone, "MENU")
+        return {
+            "type": "text",
+            "text": WELCOME_TEXT
+    }
+
+# Explicit MENU request → send buttons
+    if msg in ["menu", "start", "or bhai"]:
 
         row = find_row_by_phone(user_phone)
 
