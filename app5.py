@@ -23,7 +23,7 @@ GUPSHUP_APP_NAME = "LifestyleShauryaFitnessBot"
 GUPSHUP_SOURCE_NUMBER = "919911426467"
 GUPSHUP_SEND_URL = "https://api.gupshup.io/wa/api/v1/msg"
 GUPSHUP_API_KEY = os.environ.get("GUPSHUP_API_KEY")
-OWNER_NUMBER = os.environ.get("OWNER_NUMBER")
+# OWNER_NUMBER = os.environ.get("OWNER_NUMBER")
 
 
 # ============================================================
@@ -610,7 +610,7 @@ def process_message(user_phone, user_message, button_id=None):
         lead["interest"] = "Free Trial"
         return {"type": "text", "text": "Great! 💪 Aapka naam kya hai?"}
 
-    if state == "ASK_NAME":
+    if session["state"] == "ASK_NAME":
         lead["name"] = extract_name(user_message)
         session["state"] = "ASK_VISIT_TIME"
         return {
@@ -618,7 +618,7 @@ def process_message(user_phone, user_message, button_id=None):
             "name": lead["name"]
         }
 
-    if state == "ASK_VISIT_TIME":
+    if session["state"] == "ASK_VISIT_TIME":
 
         if msg in ["visit_today", "today", "1"]:
             lead["visit_time"] = "Today"
