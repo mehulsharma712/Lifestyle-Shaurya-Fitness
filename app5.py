@@ -722,11 +722,7 @@ Reply *MENU* anytime for options."""
 # Only greeting → send welcome text only
     if msg in ["hi", "hello", "hey"]:
         set_user_state(user_phone, "MENU")
-        return {
-            "type": "text",
-            "text": WELCOME_TEXT
-    }
-
+        return {"type": "menu"}
 # Explicit MENU request → send buttons
     if msg in ["menu", "start", "or bhai"]:
 
