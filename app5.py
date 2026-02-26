@@ -631,18 +631,18 @@ def process_message(user_phone, user_message, button_id=None):
         return {"type": "text", "text": LOCATION_TEXT}
 
     # REVIEW
-    if msg in ["review", "google review"] or msg == "review":
+    if any(word in msg for word in ["review", "google"]):
         lead["interest"] = "Review"
         return {"type": "text", "text": REVIEW_TEXT}
     
-    if msg in ["gym_photos", "gym photos", "photos", "gymimages", "gym image"]:
+    if any(word in msg for word in ["photo", "image", "gym"]):
         lead["interest"] = "Gym Photos"
         return {"type": "gym_images"}
 
 
     # TRANSFORMATIONS
     # Transformations
-    if msg in ["transform", "transformations", "photos", "results"]:
+    if any(word in msg for word in ["transform", "result"]):
         lead["interest"] = "Transformations"
         return {"type": "transformations"}
 
