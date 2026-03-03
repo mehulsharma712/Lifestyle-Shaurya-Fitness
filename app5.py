@@ -720,9 +720,14 @@ Reply *MENU* anytime for options."""
 # =====================================================
 
 # Only greeting → send welcome text only
-    if msg in ["hi", "hello", "hey"]:
-        set_user_state(user_phone, "MENU")
-        return {"type": "menu"}
+    # Greeting or Instagram autofill messages
+    if any(greet in msg for greet in ["hi", "hello", "hey"]) \
+        or "know about your gym" in msg \
+        or "information" in msg \
+        or "details" in msg:
+
+            set_user_state(user_phone, "MENU")
+            return {"type": "menu"}
 # Explicit MENU request → send buttons
     if msg in ["menu", "start", "or bhai"]:
 
