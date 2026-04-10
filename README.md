@@ -1,11 +1,11 @@
 Demo Video--https://drive.google.com/file/d/1UtcoaLzGgKxqtq5mUmqpk2ZrmXu4XgIQ/view?usp=drive_link
 
-#🚀AI Gym Assistant — Smart Chatbot for Lead Conversion
+# 🚀AI Gym Assistant — Smart Chatbot for Lead Conversion
 
 An AI-powered chatbot assistant built to automate customer interactions and improve lead conversion for gyms.
 Developed under SahAIx Labs and deployed in a real-world gym environment.
 
-##🧠Problem
+## 🧠Problem
 
 Gyms often struggle with:
 
@@ -15,7 +15,7 @@ Manual effort in managing leads and inquiries
 
 This results in poor user experience and missed conversions.
 
-##💡Solution
+## 💡Solution
 
 We built an AI-powered chatbot assistant that:
 
@@ -23,7 +23,7 @@ Responds instantly to user queries
 Provides accurate information about memberships, schedules, and services
 Captures user details for lead generation
 Reduces manual workload for gym staff
-##⚙️Features
+## ⚙️Features
 💬 Real-time Chatbot Responses
 📊 Lead Capture & Management
 🧠 Context-aware AI Responses
@@ -57,8 +57,8 @@ Deploying and testing in a real-world environment
 
 This project was built collaboratively by:
 
-Mehul Sharma — Backend development, AI integration, chatbot logic
-Muskan Garg —Deployment ( render) , working on Meta API ( gupshup) 
+## Mehul Sharma — Backend development, AI integration, chatbot logic
+## Muskan Garg —Deployment ( render) , working on Meta API ( gupshup) 
 
 We worked together on designing, building, and deploying the solution in a real gym environment.
 
