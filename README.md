@@ -1,11 +1,11 @@
-.
+Demo Video--https://drive.google.com/file/d/1UtcoaLzGgKxqtq5mUmqpk2ZrmXu4XgIQ/view?usp=drive_link
 
-🚀 AI Gym Assistant — Smart Chatbot for Lead Conversion
+#🚀AI Gym Assistant — Smart Chatbot for Lead Conversion
 
 An AI-powered chatbot assistant built to automate customer interactions and improve lead conversion for gyms.
 Developed under SahAIx Labs and deployed in a real-world gym environment.
 
-🧠 Problem
+##🧠Problem
 
 Gyms often struggle with:
 
@@ -15,7 +15,7 @@ Manual effort in managing leads and inquiries
 
 This results in poor user experience and missed conversions.
 
-💡 Solution
+##💡Solution
 
 We built an AI-powered chatbot assistant that:
 
@@ -23,7 +23,7 @@ Responds instantly to user queries
 Provides accurate information about memberships, schedules, and services
 Captures user details for lead generation
 Reduces manual workload for gym staff
-⚙️ Features
+##⚙️Features
 💬 Real-time Chatbot Responses
 📊 Lead Capture & Management
 🧠 Context-aware AI Responses
@@ -31,14 +31,11 @@ Reduces manual workload for gym staff
 🌐 Deployable as Web Chat Widget
 🏗️ Tech Stack
 
-(Edit this according to your actual stack)
-
-Backend: Node.js / Python
-AI Integration: OpenAI API / NLP-based system
-Database: MongoDB / Firebase
+Backend: Flask / Python
+Database: Excel
 Deployment: Web-based chatbot widget
 🎯 Real-World Impact
-✅ Deployed in a live gym environment
+✅ Deployed in a live gym environment ( Lifestyle Shaurya Fitness)
 ⚡ Reduced response time for customer queries
 📈 Improved user engagement and inquiry handling
 🤖 Automated repetitive tasks for staff
@@ -56,13 +53,12 @@ Deploying and testing in a real-world environment
 📱 WhatsApp & Instagram integration
 📊 Analytics dashboard (user behavior & conversion tracking)
 🎯 Personalized responses based on user intent
-🏢 Scaling as a SaaS product for multiple gyms
 👥 Team
 
 This project was built collaboratively by:
 
 Mehul Sharma — Backend development, AI integration, chatbot logic
-[Teammate Name] — [Define clearly: e.g., frontend, deployment, testing]
+Muskan Garg —Deployment ( render) , working on Meta API ( gupshup) 
 
 We worked together on designing, building, and deploying the solution in a real gym environment.
 
